@@ -56,13 +56,13 @@ function CTAButton({
 }) {
   const sizes = size === "lg" ? "h-14 px-8 text-base" : "h-11 px-5 text-sm";
   return (
-    <a
-      href="#simular"
+    <Link
+      to="/simular"
       className={`group inline-flex items-center justify-center gap-2 rounded-full bg-neon font-display font-bold uppercase tracking-wide text-primary-foreground transition-all hover:scale-[1.02] hover:brightness-110 glow-neon ${sizes} ${className}`}
     >
       {children}
       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-    </a>
+    </Link>
   );
 }
 
