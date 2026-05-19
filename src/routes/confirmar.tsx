@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, ChevronLeft, Check, Loader2, ShieldCheck } from "lucide-react";
+import { ArrowRight, ChevronLeft, Check, Loader2, ShieldCheck, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const TAXAS: Record<number, number> = {
