@@ -185,11 +185,11 @@ function SimularPage() {
               <div className="flex items-center justify-between rounded-2xl border border-border bg-background p-5">
                 <div>
                   <p className="text-xs uppercase tracking-widest text-muted-foreground">Taxa de serviço</p>
-                  <p className="font-display text-xl font-black">{(taxa * 100).toFixed(0)}%</p>
+                  <p className="font-display text-xl font-black">{(taxa * 100 / parcelas).toFixed(2).replace('.', ',')}%<span className="text-sm font-normal text-muted-foreground"> ao mês</span></p>
                 </div>
                 <div className="text-right text-xs text-muted-foreground">
-                  <p>CET: {(taxa * 100).toFixed(0)}%</p>
-                  <p>Total de juros: R$ {formatCurrency(totalCartao - valor)}</p>
+                  <p>CET: {(taxa * 100).toFixed(0)}% total</p>
+                  <p>Taxa mensal aplicada ao seu saldo</p>
                 </div>
               </div>
             </div>
@@ -215,6 +215,11 @@ function SimularPage() {
           <Logo />
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} APRIXPAY. Todos os direitos reservados.
+          </p>
+        </div>
+        <div className="mx-auto max-w-6xl px-4 pb-6">
+          <p className="text-[10px] leading-relaxed text-muted-foreground/50 text-center">
+            A APRIXPAY é uma plataforma de intermediação financeira digital responsável pela facilitação de operações de liquidez via cartão de crédito. A empresa não realiza empréstimos, financiamentos ou concessão de crédito direto ao consumidor.
           </p>
         </div>
       </footer>

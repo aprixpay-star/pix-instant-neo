@@ -17,13 +17,13 @@ export const Route = createFileRoute("/")({
   component: Landing,
   head: () => ({
     meta: [
-      { title: "APRIXPAY — Transforme seu limite em dinheiro no Pix" },
+      { title: "APRIXPAY — Transforme seu crédito em saldo no Pix" },
       {
         name: "description",
         content:
           "Receba dinheiro hoje no Pix usando o limite do seu cartão. Parcele em até 12x. Rápido, online e sem burocracia.",
       },
-      { property: "og:title", content: "APRIXPAY — Limite do cartão vira Pix" },
+      { property: "og:title", content: "APRIXPAY — Crédito do cartão vira Pix" },
       {
         property: "og:description",
         content: "Dinheiro no Pix em minutos. Parcele em até 12x no cartão.",
@@ -110,13 +110,13 @@ function Hero() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-neon opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-neon" />
             </span>
-            Liberação em até 5 minutos
+            Receba direto no pix
           </div>
 
           <h1 className="text-balance font-display text-5xl font-black leading-[0.95] tracking-tight md:text-7xl">
-            Transforme seu limite em{" "}
+            Transforme seu crédito em{" "}
             <span className="relative inline-block">
-              <span className="text-neon">dinheiro no Pix</span>
+              <span className="text-neon">saldo no Pix</span>
               <svg
                 className="absolute -bottom-2 left-0 w-full text-neon"
                 viewBox="0 0 300 12"
@@ -331,7 +331,7 @@ function Simulator() {
 
 const faqs = [
   {
-    q: "Como funciona transformar limite em dinheiro?",
+    q: "Como funciona transformar crédito em saldo?",
     a: "Você faz uma compra parcelada no seu cartão de crédito pela APRIXPAY e nós depositamos o valor equivalente direto no seu Pix em minutos.",
   },
   {
@@ -413,6 +413,11 @@ function Footer() {
         <Logo />
         <p className="text-xs text-muted-foreground">
           © {new Date().getFullYear()} APRIXPAY. Todos os direitos reservados. Crédito sujeito a análise.
+        </p>
+      </div>
+      <div className="mx-auto max-w-6xl px-4 pb-6">
+        <p className="text-[10px] leading-relaxed text-muted-foreground/50 text-center">
+          A APRIXPAY é uma plataforma de intermediação financeira digital responsável pela facilitação de operações de liquidez via cartão de crédito. A empresa não realiza empréstimos, financiamentos ou concessão de crédito direto ao consumidor.
         </p>
       </div>
     </footer>
