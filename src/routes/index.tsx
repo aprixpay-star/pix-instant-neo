@@ -110,13 +110,13 @@ function Hero() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-neon opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-neon" />
             </span>
-            Liberação em até 5 minutos
+            Receba direto no pix
           </div>
 
           <h1 className="text-balance font-display text-5xl font-black leading-[0.95] tracking-tight md:text-7xl">
-            Transforme seu limite em{" "}
+            Transforme seu crédito em{" "}
             <span className="relative inline-block">
-              <span className="text-neon">dinheiro no Pix</span>
+              <span className="text-neon">saldo no Pix</span>
               <svg
                 className="absolute -bottom-2 left-0 w-full text-neon"
                 viewBox="0 0 300 12"
