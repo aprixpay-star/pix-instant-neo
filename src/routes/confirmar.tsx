@@ -290,7 +290,7 @@ function ConfirmarPage() {
             <button
               type="submit"
               disabled={!canSubmit}
-              className="flex w-full items-center justify-center gap-2 rounded-full bg-neon py-4 font-display text-base font-bold uppercase tracking-wide text-primary-foreground transition-all hover:scale-[1.01] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-green-500 py-4 font-display text-base font-bold uppercase tracking-wide text-white transition-all hover:scale-[1.01] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 animate-pulse-ring"
             >
               {loading ? (
                 <>
@@ -298,7 +298,7 @@ function ConfirmarPage() {
                 </>
               ) : (
                 <>
-                  Confirmar operação <ArrowRight className="h-4 w-4" />
+                  <Lock className="h-4 w-4" /> Confirmar e receber agora
                 </>
               )}
             </button>
