@@ -17,13 +17,13 @@ export const Route = createFileRoute("/")({
   component: Landing,
   head: () => ({
     meta: [
-      { title: "APRIXPAY — Transforme seu limite em dinheiro no Pix" },
+      { title: "APRIXPAY — Transforme seu crédito em saldo no Pix" },
       {
         name: "description",
         content:
           "Receba dinheiro hoje no Pix usando o limite do seu cartão. Parcele em até 12x. Rápido, online e sem burocracia.",
       },
-      { property: "og:title", content: "APRIXPAY — Limite do cartão vira Pix" },
+      { property: "og:title", content: "APRIXPAY — Crédito do cartão vira Pix" },
       {
         property: "og:description",
         content: "Dinheiro no Pix em minutos. Parcele em até 12x no cartão.",
