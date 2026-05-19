@@ -269,18 +269,15 @@ function ConfirmarPage() {
               </div>
             </div>
 
-            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-background p-4 transition-colors hover:border-neon/40">
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border/60 bg-background/50 p-3 transition-colors hover:border-neon/30">
               <input
                 type="checkbox"
                 checked={aceite}
                 onChange={(e) => setAceite(e.target.checked)}
-                className="mt-0.5 h-5 w-5 shrink-0 accent-neon"
+                className="mt-0.5 h-4 w-4 shrink-0 accent-neon"
               />
-              <span className="text-sm text-muted-foreground">
-                Li e aceito os{" "}
-                <span className="font-bold text-foreground">termos de uso</span> e a{" "}
-                <span className="font-bold text-foreground">política de privacidade</span> da APRIXPAY,
-                autorizando a análise da operação.
+              <span className="text-xs text-muted-foreground">
+                Confirmo os valores e autorizo o depósito imediato na minha conta.
               </span>
             </label>
 
