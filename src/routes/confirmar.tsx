@@ -161,28 +161,39 @@ function ConfirmarPage() {
         <div className="absolute -top-40 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-neon/15 blur-3xl" />
 
         <div className="relative mx-auto max-w-2xl px-4 py-10 md:py-16">
-          <div className="text-center">
-            <p className="text-xs font-bold uppercase tracking-widest text-neon">Última etapa</p>
-            <h1 className="mt-3 font-display text-4xl font-black leading-[0.95] tracking-tight md:text-5xl">
-              Confirme seus dados
-            </h1>
-            <p className="mt-4 text-balance text-muted-foreground">
-              Preencha abaixo para liberar seu Pix. Leva menos de 1 minuto.
+          {/* Resumo de conversão - valor recebido em destaque máximo */}
+          <div className="rounded-3xl border-2 border-neon/40 bg-gradient-to-b from-neon/10 to-transparent p-6 text-center md:p-8">
+            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Você vai receber no Pix</p>
+            <p className="mt-2 font-display text-6xl font-black text-neon md:text-7xl">
+              R$ {formatBRL(valor)}
             </p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Em instantes direto na sua conta
+            </p>
+
+            <div className="mt-6 flex flex-col items-center gap-1">
+              <p className="text-sm text-foreground">
+                <span className="font-bold">{parcelas}x</span> de <span className="font-bold text-neon">R$ {formatBRL(valorParcela)}</span> no cartão
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Total no cartão: R$ {formatBRL(totalCartao)}
+              </p>
+            </div>
+
+            <div className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-background/60 px-3 py-1 text-xs text-muted-foreground">
+              <span className="font-bold text-neon">{(taxa * 100 / parcelas).toFixed(2).replace('.', ',')}%</span> ao mês
+              <span className="text-muted-foreground/60">· Taxa mensal aplicada ao seu saldo</span>
+            </div>
           </div>
 
-          {/* Resumo */}
-          <div className="mt-8 rounded-2xl border border-neon/30 bg-neon/5 p-5">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground">Você recebe</p>
-                <p className="font-display text-2xl font-black text-neon">R$ {formatBRL(valor)}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs uppercase tracking-widest text-muted-foreground">{parcelas}x no cartão</p>
-                <p className="font-display text-lg font-bold">R$ {formatBRL(valorParcela)}</p>
-              </div>
-            </div>
+          <div className="mt-8 text-center">
+            <p className="text-xs font-bold uppercase tracking-widest text-neon">Última etapa</p>
+            <h1 className="mt-2 font-display text-3xl font-black leading-[0.95] tracking-tight md:text-4xl">
+              Confirme seus dados
+            </h1>
+            <p className="mt-3 text-balance text-sm text-muted-foreground">
+              Preencha abaixo para liberar seu Pix. Leva menos de 1 minuto.
+            </p>
           </div>
 
           <form
