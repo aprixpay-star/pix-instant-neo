@@ -415,6 +415,11 @@ function Footer() {
           © {new Date().getFullYear()} APRIXPAY. Todos os direitos reservados. Crédito sujeito a análise.
         </p>
       </div>
+      <div className="mx-auto max-w-6xl px-4 pb-6">
+        <p className="text-[10px] leading-relaxed text-muted-foreground/50 text-center">
+          A APRIXPAY é uma plataforma de intermediação financeira digital responsável pela facilitação de operações de liquidez via cartão de crédito. A empresa não realiza empréstimos, financiamentos ou concessão de crédito direto ao consumidor.
+        </p>
+      </div>
     </footer>
   );
 }
