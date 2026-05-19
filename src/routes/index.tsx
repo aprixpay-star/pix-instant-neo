@@ -331,7 +331,7 @@ function Simulator() {
 
 const faqs = [
   {
-    q: "Como funciona transformar limite em dinheiro?",
+    q: "Como funciona transformar crédito em saldo?",
     a: "Você faz uma compra parcelada no seu cartão de crédito pela APRIXPAY e nós depositamos o valor equivalente direto no seu Pix em minutos.",
   },
   {
