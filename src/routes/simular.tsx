@@ -194,10 +194,14 @@ function SimularPage() {
               </div>
             </div>
 
-            <button className="mt-8 flex w-full animate-pulse-ring items-center justify-center gap-2 rounded-full bg-neon py-4 font-display text-base font-bold uppercase tracking-wide text-primary-foreground transition-all hover:scale-[1.01] hover:brightness-110">
+            <Link
+              to="/confirmar"
+              search={{ valor, parcelas }}
+              className="mt-8 flex w-full animate-pulse-ring items-center justify-center gap-2 rounded-full bg-neon py-4 font-display text-base font-bold uppercase tracking-wide text-primary-foreground transition-all hover:scale-[1.01] hover:brightness-110"
+            >
               Continuar
               <ArrowRight className="h-4 w-4" />
-            </button>
+            </Link>
 
             <p className="mt-4 text-center text-xs text-muted-foreground">
               Sujeito a análise de crédito. Valores e parcelas meramente ilustrativos.

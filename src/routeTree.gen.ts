@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SimularRouteImport } from './routes/simular'
+import { Route as ConfirmarRouteImport } from './routes/confirmar'
 import { Route as IndexRouteImport } from './routes/index'
 
 const SimularRoute = SimularRouteImport.update({
   id: '/simular',
   path: '/simular',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfirmarRoute = ConfirmarRouteImport.update({
+  id: '/confirmar',
+  path: '/confirmar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -25,27 +31,31 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/confirmar': typeof ConfirmarRoute
   '/simular': typeof SimularRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/confirmar': typeof ConfirmarRoute
   '/simular': typeof SimularRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/confirmar': typeof ConfirmarRoute
   '/simular': typeof SimularRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/simular'
+  fullPaths: '/' | '/confirmar' | '/simular'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/simular'
-  id: '__root__' | '/' | '/simular'
+  to: '/' | '/confirmar' | '/simular'
+  id: '__root__' | '/' | '/confirmar' | '/simular'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConfirmarRoute: typeof ConfirmarRoute
   SimularRoute: typeof SimularRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/simular'
       fullPath: '/simular'
       preLoaderRoute: typeof SimularRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confirmar': {
+      id: '/confirmar'
+      path: '/confirmar'
+      fullPath: '/confirmar'
+      preLoaderRoute: typeof ConfirmarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -70,18 +87,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConfirmarRoute: ConfirmarRoute,
   SimularRoute: SimularRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
