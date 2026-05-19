@@ -14,7 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      operacoes_vendas: {
+        Row: {
+          aceite_termos: boolean
+          cpf: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          nome: string
+          parcelas: number
+          user_agent: string | null
+          valor_venda: number
+        }
+        Insert: {
+          aceite_termos?: boolean
+          cpf: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          nome: string
+          parcelas: number
+          user_agent?: string | null
+          valor_venda: number
+        }
+        Update: {
+          aceite_termos?: boolean
+          cpf?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          nome?: string
+          parcelas?: number
+          user_agent?: string | null
+          valor_venda?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
