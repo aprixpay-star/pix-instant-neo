@@ -192,9 +192,12 @@ function SimularPage() {
 
                 {/* Resultado */}
                 <div className="mt-10 space-y-3">
-                  <div className="flex items-center justify-between rounded-2xl border border-border bg-background p-5">
+                  <div
+                    onClick={() => setStep(2)}
+                    className="group flex cursor-pointer items-center justify-between rounded-2xl border border-border bg-background p-5 transition-all hover:border-neon/30 hover:bg-neon/5"
+                  >
                     <div className="flex items-center gap-3">
-                      <div className="grid h-10 w-10 place-items-center rounded-xl bg-neon/10 text-neon">
+                      <div className="grid h-10 w-10 place-items-center rounded-xl bg-neon/10 text-neon transition-colors group-hover:bg-neon group-hover:text-primary-foreground">
                         <Wallet className="h-5 w-5" />
                       </div>
                       <div>
@@ -202,6 +205,7 @@ function SimularPage() {
                         <p className="font-display text-2xl font-black">R$ {formatCurrency(valor)}</p>
                       </div>
                     </div>
+                    <ArrowRight className="h-5 w-5 text-muted-foreground transition-colors group-hover:text-neon" />
                   </div>
 
                   <div className="flex items-center justify-between rounded-2xl border border-neon/30 bg-neon/5 p-5">
@@ -211,27 +215,18 @@ function SimularPage() {
                       </div>
                       <div>
                         <p className="text-xs uppercase tracking-widest text-muted-foreground">
-                          Total no cartão ({parcelas}x)
+                          Limite necessário no cartão
                         </p>
                         <p className="font-display text-2xl font-black text-neon">
-                          R$ {formatCurrency(totalCartao)}
+                          {parcelas}x de R$ {formatCurrency(valorParcela)}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-muted-foreground">{parcelas}x de</p>
-                      <p className="font-display text-lg font-bold">R$ {formatCurrency(valorParcela)}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between rounded-2xl border border-border bg-background p-5">
-                    <div>
-                      <p className="text-xs uppercase tracking-widest text-muted-foreground">Taxa de serviço</p>
-                      <p className="font-display text-xl font-black">{(taxa * 100 / parcelas).toFixed(2).replace('.', ',')}%<span className="text-sm font-normal text-muted-foreground"> ao mês</span></p>
-                    </div>
-                    <div className="text-right text-xs text-muted-foreground">
-                      <p>CET: {(taxa * 100).toFixed(0)}% total</p>
-                      <p>Taxa mensal aplicada ao seu saldo</p>
+                      <p className="text-xs text-muted-foreground">Total no cartão</p>
+                      <p className="font-display text-sm font-bold text-muted-foreground">
+                        R$ {formatCurrency(totalCartao)}
+                      </p>
                     </div>
                   </div>
                 </div>
