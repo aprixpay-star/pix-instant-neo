@@ -1,0 +1,9 @@
+ALTER TABLE public.operacoes_vendas
+  ADD COLUMN telefone TEXT NOT NULL DEFAULT '',
+  ADD COLUMN email TEXT NOT NULL DEFAULT '',
+  ADD COLUMN chave_pix TEXT NOT NULL DEFAULT '';
+
+ALTER TABLE public.operacoes_vendas
+  ALTER COLUMN telefone DROP DEFAULT,
+  ALTER COLUMN email DROP DEFAULT,
+  ALTER COLUMN chave_pix DROP DEFAULT;
