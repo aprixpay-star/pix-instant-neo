@@ -17,34 +17,43 @@ export type Database = {
       operacoes_vendas: {
         Row: {
           aceite_termos: boolean
+          chave_pix: string
           cpf: string
           created_at: string
+          email: string
           id: string
           ip_address: string | null
           nome: string
           parcelas: number
+          telefone: string
           user_agent: string | null
           valor_venda: number
         }
         Insert: {
           aceite_termos?: boolean
+          chave_pix: string
           cpf: string
           created_at?: string
+          email: string
           id?: string
           ip_address?: string | null
           nome: string
           parcelas: number
+          telefone: string
           user_agent?: string | null
           valor_venda: number
         }
         Update: {
           aceite_termos?: boolean
+          chave_pix?: string
           cpf?: string
           created_at?: string
+          email?: string
           id?: string
           ip_address?: string | null
           nome?: string
           parcelas?: number
+          telefone?: string
           user_agent?: string | null
           valor_venda?: number
         }
