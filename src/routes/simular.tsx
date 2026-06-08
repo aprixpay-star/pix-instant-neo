@@ -90,7 +90,7 @@ function SimularPage() {
   function handleConfirmPayment(e: React.FormEvent) {
     e.preventDefault();
     if (!cardValid) return;
-    navigate({ to: "/confirmar", search: { valor, parcelas } });
+    navigate({ to: "/cadastro", search: { valor, parcelas } });
   }
 
   return (
