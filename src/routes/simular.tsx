@@ -68,6 +68,8 @@ function SimularPage() {
   const [step, setStep] = useState<1 | 2>(1);
   const [valor, setValor] = useState(2500);
   const [parcelas, setParcelas] = useState(12);
+  const [editandoValor, setEditandoValor] = useState(false);
+  const [rawValor, setRawValor] = useState("");
 
   // Card form state
   const [cardNumber, setCardNumber] = useState("");
@@ -141,15 +143,51 @@ function SimularPage() {
                   </label>
                   <div className="mt-2 flex items-baseline gap-2">
                     <span className="text-2xl text-muted-foreground">R$</span>
-                    <span className="font-display text-6xl font-black text-neon md:text-7xl">
-                      {valor.toLocaleString("pt-BR")}
-                    </span>
+                    {editandoValor ? (
+                      <input
+                        autoFocus
+                        type="text"
+                        inputMode="numeric"
+                        value={rawValor}
+                        onChange={(e) => setRawValor(e.target.value.replace(/\D/g, ""))}
+                        onBlur={() => {
+                          const numero = Number(rawValor) || 0;
+                          const arredondado = Math.round(Math.max(10, Math.min(15000, numero)) / 10) * 10;
+                          setValor(arredondado);
+                          setEditandoValor(false);
+                          setRawValor("");
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            const numero = Number(rawValor) || 0;
+                            const arredondado = Math.round(Math.max(10, Math.min(15000, numero)) / 10) * 10;
+                            setValor(arredondado);
+                            setEditandoValor(false);
+                            setRawValor("");
+                          }
+                        }}
+                        className="w-48 rounded-xl border border-neon bg-card px-2 py-1 font-display text-6xl font-black text-neon focus:outline-none focus:ring-2 focus:ring-neon md:w-64 md:text-7xl"
+                      />
+                    ) : (
+                      <span
+                        onClick={() => {
+                          setRawValor(String(valor));
+                          setEditandoValor(true);
+                        }}
+                        className="cursor-pointer rounded-xl font-display text-6xl font-black text-neon transition-colors hover:bg-neon/10 md:text-7xl"
+                        role="button"
+                        aria-label="Editar valor"
+                        title="Clique para editar o valor"
+                      >
+                        {valor.toLocaleString("pt-BR")}
+                      </span>
+                    )}
                   </div>
                   <input
                     type="range"
                     min={10}
                     max={15000}
-                    step={100}
+                    step={10}
                     value={valor}
                     onChange={(e) => setValor(Number(e.target.value))}
                     className="mt-4 w-full accent-neon"
