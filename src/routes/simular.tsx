@@ -68,6 +68,8 @@ function SimularPage() {
   const [step, setStep] = useState<1 | 2>(1);
   const [valor, setValor] = useState(2500);
   const [parcelas, setParcelas] = useState(12);
+  const [editandoValor, setEditandoValor] = useState(false);
+  const [rawValor, setRawValor] = useState("");
 
   // Card form state
   const [cardNumber, setCardNumber] = useState("");
