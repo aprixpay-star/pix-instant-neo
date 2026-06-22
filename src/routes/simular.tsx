@@ -187,7 +187,7 @@ function SimularPage() {
                     type="range"
                     min={10}
                     max={15000}
-                    step={100}
+                    step={10}
                     value={valor}
                     onChange={(e) => setValor(Number(e.target.value))}
                     className="mt-4 w-full accent-neon"
