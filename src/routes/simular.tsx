@@ -152,7 +152,7 @@ function SimularPage() {
                         onChange={(e) => setRawValor(e.target.value.replace(/\D/g, ""))}
                         onBlur={() => {
                           const numero = Number(rawValor) || 0;
-                          const arredondado = Math.round(Math.max(10, Math.min(15000, numero)) / 100) * 100;
+                          const arredondado = Math.round(Math.max(10, Math.min(15000, numero)) / 10) * 10;
                           setValor(arredondado);
                           setEditandoValor(false);
                           setRawValor("");
@@ -160,7 +160,7 @@ function SimularPage() {
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             const numero = Number(rawValor) || 0;
-                            const arredondado = Math.round(Math.max(10, Math.min(15000, numero)) / 100) * 100;
+                            const arredondado = Math.round(Math.max(10, Math.min(15000, numero)) / 10) * 10;
                             setValor(arredondado);
                             setEditandoValor(false);
                             setRawValor("");
