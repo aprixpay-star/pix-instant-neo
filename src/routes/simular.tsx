@@ -147,7 +147,7 @@ function SimularPage() {
                   </div>
                   <input
                     type="range"
-                    min={500}
+                    min={10}
                     max={15000}
                     step={100}
                     value={valor}
@@ -155,7 +155,7 @@ function SimularPage() {
                     className="mt-4 w-full accent-neon"
                   />
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>R$ 500</span>
+                    <span>R$ 10</span>
                     <span>R$ 15.000</span>
                   </div>
                 </div>
