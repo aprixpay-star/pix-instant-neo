@@ -230,7 +230,7 @@ function SimularPage() {
                 {/* Resultado */}
                 <div className="mt-10 space-y-3">
                   <div
-                    onClick={() => setStep(2)}
+                    onClick={goToPayment}
                     className="group flex cursor-pointer items-center justify-between rounded-2xl border border-border bg-background p-5 transition-all hover:border-neon/30 hover:bg-neon/5"
                   >
                     <div className="flex items-center gap-3">
@@ -270,10 +270,10 @@ function SimularPage() {
 
                 <button
                   type="button"
-                  onClick={() => setStep(2)}
+                  onClick={goToPayment}
                   className="mt-8 flex w-full animate-pulse-ring items-center justify-center gap-2 rounded-full bg-neon py-4 font-display text-base font-bold uppercase tracking-wide text-primary-foreground transition-all hover:scale-[1.01] hover:brightness-110"
                 >
-                  Continuar
+                  Ir para pagamento
                   <ArrowRight className="h-4 w-4" />
                 </button>
 
@@ -284,113 +284,6 @@ function SimularPage() {
             </div>
           )}
 
-          {step === 2 && (
-            <div key="step-2" className="animate-in fade-in duration-300">
-              <div className="rounded-3xl border border-border bg-card p-6 md:p-10">
-                {/* Header com voltar + resumo */}
-                <div className="flex items-center justify-between gap-3 border-b border-border/60 pb-5">
-                  <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:border-neon/40 hover:text-foreground"
-                  >
-                    <ChevronLeft className="h-3.5 w-3.5" /> Voltar
-                  </button>
-                  <div className="text-right">
-                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Total a pagar</p>
-                    <p className="font-display text-sm font-bold">
-                      R$ {formatCurrency(totalCartao)} <span className="text-neon">em {parcelas}x</span>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-6 text-center">
-                  <p className="text-xs font-bold uppercase tracking-widest text-neon">Dados do cartão</p>
-                  <h2 className="mt-2 font-display text-3xl font-black leading-tight tracking-tight md:text-4xl">
-                    Quase lá!
-                  </h2>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Você vai receber <span className="font-bold text-neon">R$ {formatCurrency(valor)}</span> no Pix.
-                  </p>
-                </div>
-
-                <form onSubmit={handleConfirmPayment} className="mt-6 space-y-5">
-                  <div>
-                    <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                      Número do cartão
-                    </label>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={cardNumber}
-                      onChange={(e) => setCardNumber(maskCardNumber(e.target.value))}
-                      placeholder="0000 0000 0000 0000"
-                      className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-base tracking-wider text-foreground placeholder:text-muted-foreground/60 focus:border-neon focus:shadow-[0_0_0_3px_oklch(0.88_0.27_145_/_0.15)] focus:outline-none"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                      Nome impresso no cartão
-                    </label>
-                    <input
-                      type="text"
-                      value={cardName}
-                      onChange={(e) => setCardName(e.target.value.toUpperCase())}
-                      placeholder="COMO IMPRESSO NO CARTÃO"
-                      className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-base text-foreground placeholder:text-muted-foreground/60 focus:border-neon focus:shadow-[0_0_0_3px_oklch(0.88_0.27_145_/_0.15)] focus:outline-none"
-                      required
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                        Validade
-                      </label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={validade}
-                        onChange={(e) => setValidade(maskValidade(e.target.value))}
-                        placeholder="MM/AA"
-                        className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-base text-foreground placeholder:text-muted-foreground/60 focus:border-neon focus:shadow-[0_0_0_3px_oklch(0.88_0.27_145_/_0.15)] focus:outline-none"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                        CVV
-                      </label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={cvv}
-                        onChange={(e) => setCvv(maskCVV(e.target.value))}
-                        placeholder="000"
-                        className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-base text-foreground placeholder:text-muted-foreground/60 focus:border-neon focus:shadow-[0_0_0_3px_oklch(0.88_0.27_145_/_0.15)] focus:outline-none"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={!cardValid}
-                    className="mt-2 flex w-full animate-pulse-ring items-center justify-center gap-2 rounded-full bg-neon py-4 font-display text-base font-bold uppercase tracking-wide text-primary-foreground transition-all hover:scale-[1.01] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
-                  >
-                    <Lock className="h-4 w-4" /> Confirmar Pagamento
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-
-                  <p className="text-center text-xs text-muted-foreground">
-                    🔒 Conexão segura · Seus dados são criptografados.
-                  </p>
-                </form>
-              </div>
-            </div>
-          )}
         </div>
       </main>
 
