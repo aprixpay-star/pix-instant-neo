@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { ArrowRight, ChevronLeft, Wallet, CreditCard, Check, Lock } from "lucide-react";
+import { ArrowRight, ChevronLeft, Wallet, CreditCard, Check } from "lucide-react";
 
 const TAXAS: Record<number, number> = {
   1: 0.12,
@@ -50,32 +50,13 @@ function formatCurrency(value: number) {
   });
 }
 
-function maskCardNumber(v: string) {
-  const d = v.replace(/\D/g, "").slice(0, 16);
-  return d.replace(/(\d{4})(?=\d)/g, "$1 ");
-}
-function maskValidade(v: string) {
-  const d = v.replace(/\D/g, "").slice(0, 4);
-  if (d.length < 3) return d;
-  return d.slice(0, 2) + "/" + d.slice(2);
-}
-function maskCVV(v: string) {
-  return v.replace(/\D/g, "").slice(0, 4);
-}
-
 function SimularPage() {
   const navigate = useNavigate();
-  const [step, setStep] = useState<1 | 2>(1);
+  const step = 1 as const;
   const [valor, setValor] = useState(2500);
   const [parcelas, setParcelas] = useState(12);
   const [editandoValor, setEditandoValor] = useState(false);
   const [rawValor, setRawValor] = useState("");
-
-  // Card form state
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardName, setCardName] = useState("");
-  const [validade, setValidade] = useState("");
-  const [cvv, setCvv] = useState("");
 
   const taxa = TAXAS[parcelas] ?? 0.40;
   const totalCartao = useMemo(() => valor * (1 + taxa), [valor, taxa]);
@@ -83,15 +64,10 @@ function SimularPage() {
 
   const parcelOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
-  const cardValid =
-    cardNumber.replace(/\s/g, "").length >= 13 &&
-    cardName.trim().length >= 3 &&
-    /^\d{2}\/\d{2}$/.test(validade) &&
-    cvv.length >= 3;
-
   function goToPayment() {
     navigate({ to: "/pagamento", search: { valor, parcelas } });
   }
+
 
 
   return (
