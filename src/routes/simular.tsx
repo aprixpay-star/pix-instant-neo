@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { ArrowRight, ChevronLeft, Wallet, CreditCard, Check, Lock } from "lucide-react";
+import { ArrowRight, ChevronLeft, Wallet, CreditCard, Check } from "lucide-react";
 
 const TAXAS: Record<number, number> = {
   1: 0.12,
@@ -50,32 +50,13 @@ function formatCurrency(value: number) {
   });
 }
 
-function maskCardNumber(v: string) {
-  const d = v.replace(/\D/g, "").slice(0, 16);
-  return d.replace(/(\d{4})(?=\d)/g, "$1 ");
-}
-function maskValidade(v: string) {
-  const d = v.replace(/\D/g, "").slice(0, 4);
-  if (d.length < 3) return d;
-  return d.slice(0, 2) + "/" + d.slice(2);
-}
-function maskCVV(v: string) {
-  return v.replace(/\D/g, "").slice(0, 4);
-}
-
 function SimularPage() {
   const navigate = useNavigate();
-  const [step, setStep] = useState<1 | 2>(1);
+  const step = 1 as const;
   const [valor, setValor] = useState(2500);
   const [parcelas, setParcelas] = useState(12);
   const [editandoValor, setEditandoValor] = useState(false);
   const [rawValor, setRawValor] = useState("");
-
-  // Card form state
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardName, setCardName] = useState("");
-  const [validade, setValidade] = useState("");
-  const [cvv, setCvv] = useState("");
 
   const taxa = TAXAS[parcelas] ?? 0.40;
   const totalCartao = useMemo(() => valor * (1 + taxa), [valor, taxa]);
@@ -83,17 +64,11 @@ function SimularPage() {
 
   const parcelOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
-  const cardValid =
-    cardNumber.replace(/\s/g, "").length >= 13 &&
-    cardName.trim().length >= 3 &&
-    /^\d{2}\/\d{2}$/.test(validade) &&
-    cvv.length >= 3;
-
-  function handleConfirmPayment(e: React.FormEvent) {
-    e.preventDefault();
-    if (!cardValid) return;
-    navigate({ to: "/cadastro", search: { valor, parcelas } });
+  function goToPayment() {
+    navigate({ to: "/pagamento", search: { valor, parcelas } });
   }
+
+
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -116,15 +91,9 @@ function SimularPage() {
         <div className="absolute -top-40 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-neon/15 blur-3xl" />
 
         <div className="relative mx-auto max-w-2xl px-4 py-10 md:py-16">
-          {/* Step indicator */}
-          <div className="mb-6 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest">
-            <span className={step === 1 ? "text-neon" : "text-muted-foreground"}>1. Simular</span>
-            <span className="text-muted-foreground">—</span>
-            <span className={step === 2 ? "text-neon" : "text-muted-foreground"}>2. Cartão</span>
-          </div>
-
           {step === 1 && (
             <div key="step-1" className="animate-in fade-in duration-300">
+
               <div className="text-center">
                 <p className="text-xs font-bold uppercase tracking-widest text-neon">Simulador APRIXPAY</p>
                 <h1 className="mt-3 font-display text-4xl font-black leading-[0.95] tracking-tight md:text-5xl">
@@ -231,7 +200,7 @@ function SimularPage() {
                 {/* Resultado */}
                 <div className="mt-10 space-y-3">
                   <div
-                    onClick={() => setStep(2)}
+                    onClick={goToPayment}
                     className="group flex cursor-pointer items-center justify-between rounded-2xl border border-border bg-background p-5 transition-all hover:border-neon/30 hover:bg-neon/5"
                   >
                     <div className="flex items-center gap-3">
@@ -271,10 +240,10 @@ function SimularPage() {
 
                 <button
                   type="button"
-                  onClick={() => setStep(2)}
+                  onClick={goToPayment}
                   className="mt-8 flex w-full animate-pulse-ring items-center justify-center gap-2 rounded-full bg-neon py-4 font-display text-base font-bold uppercase tracking-wide text-primary-foreground transition-all hover:scale-[1.01] hover:brightness-110"
                 >
-                  Continuar
+                  Ir para pagamento
                   <ArrowRight className="h-4 w-4" />
                 </button>
 
@@ -285,113 +254,6 @@ function SimularPage() {
             </div>
           )}
 
-          {step === 2 && (
-            <div key="step-2" className="animate-in fade-in duration-300">
-              <div className="rounded-3xl border border-border bg-card p-6 md:p-10">
-                {/* Header com voltar + resumo */}
-                <div className="flex items-center justify-between gap-3 border-b border-border/60 pb-5">
-                  <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:border-neon/40 hover:text-foreground"
-                  >
-                    <ChevronLeft className="h-3.5 w-3.5" /> Voltar
-                  </button>
-                  <div className="text-right">
-                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Total a pagar</p>
-                    <p className="font-display text-sm font-bold">
-                      R$ {formatCurrency(totalCartao)} <span className="text-neon">em {parcelas}x</span>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-6 text-center">
-                  <p className="text-xs font-bold uppercase tracking-widest text-neon">Dados do cartão</p>
-                  <h2 className="mt-2 font-display text-3xl font-black leading-tight tracking-tight md:text-4xl">
-                    Quase lá!
-                  </h2>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Você vai receber <span className="font-bold text-neon">R$ {formatCurrency(valor)}</span> no Pix.
-                  </p>
-                </div>
-
-                <form onSubmit={handleConfirmPayment} className="mt-6 space-y-5">
-                  <div>
-                    <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                      Número do cartão
-                    </label>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={cardNumber}
-                      onChange={(e) => setCardNumber(maskCardNumber(e.target.value))}
-                      placeholder="0000 0000 0000 0000"
-                      className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-base tracking-wider text-foreground placeholder:text-muted-foreground/60 focus:border-neon focus:shadow-[0_0_0_3px_oklch(0.88_0.27_145_/_0.15)] focus:outline-none"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                      Nome impresso no cartão
-                    </label>
-                    <input
-                      type="text"
-                      value={cardName}
-                      onChange={(e) => setCardName(e.target.value.toUpperCase())}
-                      placeholder="COMO IMPRESSO NO CARTÃO"
-                      className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-base text-foreground placeholder:text-muted-foreground/60 focus:border-neon focus:shadow-[0_0_0_3px_oklch(0.88_0.27_145_/_0.15)] focus:outline-none"
-                      required
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                        Validade
-                      </label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={validade}
-                        onChange={(e) => setValidade(maskValidade(e.target.value))}
-                        placeholder="MM/AA"
-                        className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-base text-foreground placeholder:text-muted-foreground/60 focus:border-neon focus:shadow-[0_0_0_3px_oklch(0.88_0.27_145_/_0.15)] focus:outline-none"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                        CVV
-                      </label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={cvv}
-                        onChange={(e) => setCvv(maskCVV(e.target.value))}
-                        placeholder="000"
-                        className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-base text-foreground placeholder:text-muted-foreground/60 focus:border-neon focus:shadow-[0_0_0_3px_oklch(0.88_0.27_145_/_0.15)] focus:outline-none"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={!cardValid}
-                    className="mt-2 flex w-full animate-pulse-ring items-center justify-center gap-2 rounded-full bg-neon py-4 font-display text-base font-bold uppercase tracking-wide text-primary-foreground transition-all hover:scale-[1.01] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
-                  >
-                    <Lock className="h-4 w-4" /> Confirmar Pagamento
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-
-                  <p className="text-center text-xs text-muted-foreground">
-                    🔒 Conexão segura · Seus dados são criptografados.
-                  </p>
-                </form>
-              </div>
-            </div>
-          )}
         </div>
       </main>
 

@@ -25,8 +25,12 @@ export type Database = {
           ip_address: string | null
           nome: string
           parcelas: number
+          payment_id: string | null
+          status: string
+          status_detail: string | null
           telefone: string
           user_agent: string | null
+          valor_total_cartao: number | null
           valor_venda: number
         }
         Insert: {
@@ -39,8 +43,12 @@ export type Database = {
           ip_address?: string | null
           nome: string
           parcelas: number
+          payment_id?: string | null
+          status?: string
+          status_detail?: string | null
           telefone: string
           user_agent?: string | null
+          valor_total_cartao?: number | null
           valor_venda: number
         }
         Update: {
@@ -53,8 +61,12 @@ export type Database = {
           ip_address?: string | null
           nome?: string
           parcelas?: number
+          payment_id?: string | null
+          status?: string
+          status_detail?: string | null
           telefone?: string
           user_agent?: string | null
+          valor_total_cartao?: number | null
           valor_venda?: number
         }
         Relationships: []
