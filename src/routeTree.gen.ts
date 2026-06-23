@@ -9,24 +9,25 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SucessoRouteImport } from './routes/sucesso'
 import { Route as SimularRouteImport } from './routes/simular'
-import { Route as ConfirmarRouteImport } from './routes/confirmar'
-import { Route as CadastroRouteImport } from './routes/cadastro'
+import { Route as PagamentoRouteImport } from './routes/pagamento'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicWebhooksMercadopagoRouteImport } from './routes/api/public/webhooks/mercadopago'
 
+const SucessoRoute = SucessoRouteImport.update({
+  id: '/sucesso',
+  path: '/sucesso',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SimularRoute = SimularRouteImport.update({
   id: '/simular',
   path: '/simular',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ConfirmarRoute = ConfirmarRouteImport.update({
-  id: '/confirmar',
-  path: '/confirmar',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CadastroRoute = CadastroRouteImport.update({
-  id: '/cadastro',
-  path: '/cadastro',
+const PagamentoRoute = PagamentoRouteImport.update({
+  id: '/pagamento',
+  path: '/pagamento',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -34,43 +35,76 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWebhooksMercadopagoRoute =
+  ApiPublicWebhooksMercadopagoRouteImport.update({
+    id: '/api/public/webhooks/mercadopago',
+    path: '/api/public/webhooks/mercadopago',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/cadastro': typeof CadastroRoute
-  '/confirmar': typeof ConfirmarRoute
+  '/pagamento': typeof PagamentoRoute
   '/simular': typeof SimularRoute
+  '/sucesso': typeof SucessoRoute
+  '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/cadastro': typeof CadastroRoute
-  '/confirmar': typeof ConfirmarRoute
+  '/pagamento': typeof PagamentoRoute
   '/simular': typeof SimularRoute
+  '/sucesso': typeof SucessoRoute
+  '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/cadastro': typeof CadastroRoute
-  '/confirmar': typeof ConfirmarRoute
+  '/pagamento': typeof PagamentoRoute
   '/simular': typeof SimularRoute
+  '/sucesso': typeof SucessoRoute
+  '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/cadastro' | '/confirmar' | '/simular'
+  fullPaths:
+    | '/'
+    | '/pagamento'
+    | '/simular'
+    | '/sucesso'
+    | '/api/public/webhooks/mercadopago'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cadastro' | '/confirmar' | '/simular'
-  id: '__root__' | '/' | '/cadastro' | '/confirmar' | '/simular'
+  to:
+    | '/'
+    | '/pagamento'
+    | '/simular'
+    | '/sucesso'
+    | '/api/public/webhooks/mercadopago'
+  id:
+    | '__root__'
+    | '/'
+    | '/pagamento'
+    | '/simular'
+    | '/sucesso'
+    | '/api/public/webhooks/mercadopago'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  CadastroRoute: typeof CadastroRoute
-  ConfirmarRoute: typeof ConfirmarRoute
+  PagamentoRoute: typeof PagamentoRoute
   SimularRoute: typeof SimularRoute
+  SucessoRoute: typeof SucessoRoute
+  ApiPublicWebhooksMercadopagoRoute: typeof ApiPublicWebhooksMercadopagoRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sucesso': {
+      id: '/sucesso'
+      path: '/sucesso'
+      fullPath: '/sucesso'
+      preLoaderRoute: typeof SucessoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/simular': {
       id: '/simular'
       path: '/simular'
@@ -78,18 +112,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SimularRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/confirmar': {
-      id: '/confirmar'
-      path: '/confirmar'
-      fullPath: '/confirmar'
-      preLoaderRoute: typeof ConfirmarRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cadastro': {
-      id: '/cadastro'
-      path: '/cadastro'
-      fullPath: '/cadastro'
-      preLoaderRoute: typeof CadastroRouteImport
+    '/pagamento': {
+      id: '/pagamento'
+      path: '/pagamento'
+      fullPath: '/pagamento'
+      preLoaderRoute: typeof PagamentoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -99,14 +126,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/webhooks/mercadopago': {
+      id: '/api/public/webhooks/mercadopago'
+      path: '/api/public/webhooks/mercadopago'
+      fullPath: '/api/public/webhooks/mercadopago'
+      preLoaderRoute: typeof ApiPublicWebhooksMercadopagoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  CadastroRoute: CadastroRoute,
-  ConfirmarRoute: ConfirmarRoute,
+  PagamentoRoute: PagamentoRoute,
   SimularRoute: SimularRoute,
+  SucessoRoute: SucessoRoute,
+  ApiPublicWebhooksMercadopagoRoute: ApiPublicWebhooksMercadopagoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

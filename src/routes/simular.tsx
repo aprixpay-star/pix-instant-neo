@@ -89,11 +89,10 @@ function SimularPage() {
     /^\d{2}\/\d{2}$/.test(validade) &&
     cvv.length >= 3;
 
-  function handleConfirmPayment(e: React.FormEvent) {
-    e.preventDefault();
-    if (!cardValid) return;
-    navigate({ to: "/cadastro", search: { valor, parcelas } });
+  function goToPayment() {
+    navigate({ to: "/pagamento", search: { valor, parcelas } });
   }
+
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
