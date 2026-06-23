@@ -91,15 +91,9 @@ function SimularPage() {
         <div className="absolute -top-40 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-neon/15 blur-3xl" />
 
         <div className="relative mx-auto max-w-2xl px-4 py-10 md:py-16">
-          {/* Step indicator */}
-          <div className="mb-6 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest">
-            <span className={step === 1 ? "text-neon" : "text-muted-foreground"}>1. Simular</span>
-            <span className="text-muted-foreground">—</span>
-            <span className={step === 2 ? "text-neon" : "text-muted-foreground"}>2. Cartão</span>
-          </div>
-
           {step === 1 && (
             <div key="step-1" className="animate-in fade-in duration-300">
+
               <div className="text-center">
                 <p className="text-xs font-bold uppercase tracking-widest text-neon">Simulador APRIXPAY</p>
                 <h1 className="mt-3 font-display text-4xl font-black leading-[0.95] tracking-tight md:text-5xl">
