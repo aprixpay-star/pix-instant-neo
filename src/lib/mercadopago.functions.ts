@@ -4,6 +4,8 @@ import { getRequestIP } from "@tanstack/react-start/server";
 type ProcessarPagamentoInput = {
   token: string;
   payment_method_id: string;
+  issuer_id?: string;
+  public_key_mode?: "test" | "live" | "unknown";
   installments: number;
   // Cliente
   nome: string;
@@ -32,11 +34,45 @@ function validate(d: ProcessarPagamentoInput) {
   return d;
 }
 
+function credentialMode(value: string): "test" | "live" | "unknown" {
+  if (value.startsWith("TEST-")) return "test";
+  if (value.startsWith("APP_USR-")) return "live";
+  return "unknown";
+}
+
+function readableMercadoPagoError(message: string) {
+  if (message === "internal_error" || message.includes("internal_error")) {
+    return "O Mercado Pago retornou uma falha interna. Confira se a Public Key e o Access Token são da mesma conta e do mesmo ambiente de teste/live.";
+  }
+
+  if (message.includes("security_code_length")) {
+    return "CVV inválido para a bandeira do cartão informado.";
+  }
+
+  return message;
+}
+
 export const processarPagamento = createServerFn({ method: "POST" })
   .inputValidator((data: ProcessarPagamentoInput) => validate(data))
   .handler(async ({ data }) => {
     const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
     if (!accessToken) throw new Error("MERCADOPAGO_ACCESS_TOKEN não configurado.");
+
+    const accessTokenMode = credentialMode(accessToken);
+    if (
+      data.public_key_mode &&
+      data.public_key_mode !== "unknown" &&
+      accessTokenMode !== "unknown" &&
+      data.public_key_mode !== accessTokenMode
+    ) {
+      console.error("[MP] credential environment mismatch", {
+        public_key_mode: data.public_key_mode,
+        access_token_mode: accessTokenMode,
+      });
+      throw new Error(
+        "Credenciais do Mercado Pago em ambientes diferentes: use Public Key e Access Token da mesma conta e do mesmo ambiente de teste/live.",
+      );
+    }
 
     const ip = getRequestIP({ xForwardedFor: true }) ?? null;
 
@@ -45,6 +81,26 @@ export const processarPagamento = createServerFn({ method: "POST" })
 
     const idempotencyKey = `aprixpay-${data.cpf}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
+    const paymentBody: Record<string, unknown> = {
+      transaction_amount: amount,
+      token: data.token,
+      description: `APRIXPAY - Pix R$ ${data.valor_recebido.toFixed(2)}`,
+      installments: data.installments,
+      payment_method_id: data.payment_method_id,
+      statement_descriptor: "APRIXPAY",
+      payer: {
+        email: data.email,
+        first_name: data.nome.split(" ")[0],
+        last_name: data.nome.split(" ").slice(1).join(" ") || data.nome.split(" ")[0],
+        identification: { type: "CPF", number: data.cpf },
+      },
+    };
+
+    if (data.issuer_id) {
+      const numericIssuerId = Number(data.issuer_id);
+      paymentBody.issuer_id = Number.isFinite(numericIssuerId) ? numericIssuerId : data.issuer_id;
+    }
+
     const mpResp = await fetch("https://api.mercadopago.com/v1/payments", {
       method: "POST",
       headers: {
@@ -52,20 +108,7 @@ export const processarPagamento = createServerFn({ method: "POST" })
         Authorization: `Bearer ${accessToken}`,
         "X-Idempotency-Key": idempotencyKey,
       },
-      body: JSON.stringify({
-        transaction_amount: amount,
-        token: data.token,
-        description: `APRIXPAY - Pix R$ ${data.valor_recebido.toFixed(2)}`,
-        installments: data.installments,
-        payment_method_id: data.payment_method_id,
-        statement_descriptor: "APRIXPAY",
-        payer: {
-          email: data.email,
-          first_name: data.nome.split(" ")[0],
-          last_name: data.nome.split(" ").slice(1).join(" ") || data.nome.split(" ")[0],
-          identification: { type: "CPF", number: data.cpf },
-        },
-      }),
+      body: JSON.stringify(paymentBody),
     });
 
     const mpData = (await mpResp.json()) as {
@@ -83,8 +126,19 @@ export const processarPagamento = createServerFn({ method: "POST" })
         mpData?.message ||
         mpData?.error ||
         "Falha ao processar pagamento.";
-      console.error("[MP] payment error:", mpResp.status, mpData);
-      throw new Error(reason);
+      console.error("[MP] payment error:", mpResp.status, {
+        message: mpData?.message,
+        error: mpData?.error,
+        cause: mpData?.cause,
+        request_context: {
+          installments: data.installments,
+          payment_method_id: data.payment_method_id,
+          issuer_id: data.issuer_id ?? null,
+          access_token_mode: accessTokenMode,
+          public_key_mode: data.public_key_mode ?? "unknown",
+        },
+      });
+      throw new Error(readableMercadoPagoError(reason));
     }
 
     const status = mpData.status ?? "unknown";
