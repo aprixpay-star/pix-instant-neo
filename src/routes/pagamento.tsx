@@ -4,7 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { ChevronLeft, Lock, ShieldCheck, Loader2, CreditCard } from "lucide-react";
 import { processarPagamento } from "@/lib/mercadopago.functions";
 
-const MP_PUBLIC_KEY = "TEST-4b6d4336-bd2e-4a96-bcc2-1b22a2bc73ba";
+const MP_PUBLIC_KEY =
+  import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY || "TEST-4b6d4336-bd2e-4a96-bcc2-1b22a2bc73ba";
 
 const TAXAS: Record<number, number> = {
   1: 0.12, 2: 0.19, 3: 0.25, 4: 0.28, 5: 0.30, 6: 0.32,
@@ -88,6 +89,50 @@ interface MPInstance {
     identificationNumber: string;
   }): Promise<{ id: string; first_six_digits?: string; last_four_digits?: string }>;
   getPaymentMethods(params: { bin: string }): Promise<{ results: MPPaymentMethod[] }>;
+  getIssuers?(params: { paymentMethodId: string; bin?: string }): Promise<Array<{ id?: number | string; name?: string }>>;
+}
+
+function credentialMode(value: string): "test" | "live" | "unknown" {
+  if (value.startsWith("TEST-")) return "test";
+  if (value.startsWith("APP_USR-")) return "live";
+  return "unknown";
+}
+
+function expectedCvvLength(method: MPPaymentMethod, bin: string) {
+  const settings = method.settings ?? [];
+  const matchingSetting =
+    settings.find((setting) => {
+      const pattern = setting.bin?.pattern;
+      if (!pattern) return false;
+      try {
+        return new RegExp(pattern).test(bin);
+      } catch {
+        return false;
+      }
+    }) ?? settings.find((setting) => setting.security_code?.length);
+
+  return matchingSetting?.security_code?.length;
+}
+
+function getReadablePaymentError(error: unknown) {
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === "string"
+        ? error
+        : error && typeof error === "object" && "message" in error
+          ? String((error as { message?: unknown }).message)
+          : "Erro ao processar pagamento.";
+
+  if (message === "internal_error" || message.includes("internal_error")) {
+    return "Não foi possível concluir agora. Verifique se as credenciais do Mercado Pago são da mesma conta e do mesmo ambiente de teste/live.";
+  }
+
+  if (message.includes("security_code_length")) {
+    return "O CVV informado não corresponde ao tamanho esperado para a bandeira deste cartão.";
+  }
+
+  return message;
 }
 
 function PagamentoPage() {
@@ -144,7 +189,8 @@ function PagamentoPage() {
 
   const cpfDigits = cpf.replace(/\D/g, "");
   const phoneDigits = telefone.replace(/\D/g, "");
-  const cardDigits = cardNumber.replace(/\s/g, "");
+  const cardDigits = cardNumber.replace(/\D/g, "");
+  const cvvDigits = cvv.replace(/\D/g, "");
 
   const formValid =
     nome.trim().length >= 3 &&
@@ -155,7 +201,7 @@ function PagamentoPage() {
     cardDigits.length >= 13 &&
     cardName.trim().length >= 3 &&
     /^\d{2}\/\d{2}$/.test(exp) &&
-    cvv.length >= 3 &&
+    cvvDigits.length >= 3 &&
     aceite;
 
   async function handleSubmit(e: React.FormEvent) {
@@ -174,21 +220,28 @@ function PagamentoPage() {
       if (!credit) throw new Error("Bandeira do cartão não aceita.");
 
       // Validate CVV length against what MP expects for this brand
-      const expectedCvvLen = credit.settings?.[0]?.security_code?.length;
-      if (expectedCvvLen && cvv.length !== expectedCvvLen) {
+      const expectedCvvLen = expectedCvvLength(credit, bin);
+      if (expectedCvvLen && cvvDigits.length !== expectedCvvLen) {
         throw new Error(
           `O código de segurança deste cartão deve ter ${expectedCvvLen} dígitos.`,
         );
       }
 
+      let issuerId = credit.issuer?.id ? String(credit.issuer.id) : undefined;
+      if (!issuerId && typeof mpRef.current.getIssuers === "function") {
+        const issuers = await mpRef.current.getIssuers({ paymentMethodId: credit.id, bin });
+        issuerId = issuers?.[0]?.id ? String(issuers[0].id) : undefined;
+      }
+
       // Non-sensitive diagnostics
       console.info("[MP] tokenization payload", {
         card_digits_len: cardDigits.length,
-        cvv_digits_len: cvv.length,
+        cvv_digits_len: cvvDigits.length,
         expected_cvv_len: expectedCvvLen ?? null,
         payment_method_id: credit.id,
         payment_type_id: credit.payment_type_id,
-        issuer_id: credit.issuer?.id ?? null,
+        issuer_id: issuerId ?? null,
+        public_key_mode: credentialMode(MP_PUBLIC_KEY),
         exp_month: mm,
         exp_year: yearFull,
       });
@@ -199,7 +252,7 @@ function PagamentoPage() {
         cardholderName: cardName.trim(),
         cardExpirationMonth: mm,
         cardExpirationYear: yearFull,
-        securityCode: cvv,
+        securityCode: cvvDigits,
         identificationType: "CPF",
         identificationNumber: cpfDigits,
       });
@@ -211,6 +264,8 @@ function PagamentoPage() {
         data: {
           token: tokenResp.id,
           payment_method_id: credit.id,
+          issuer_id: issuerId,
+          public_key_mode: credentialMode(MP_PUBLIC_KEY),
           installments: parcelas,
           nome: nome.trim(),
           cpf: cpfDigits,
@@ -235,8 +290,7 @@ function PagamentoPage() {
         );
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Erro ao processar pagamento.";
-      setError(msg);
+      setError(getReadablePaymentError(err));
     } finally {
       setLoading(false);
     }
