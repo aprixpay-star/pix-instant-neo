@@ -173,16 +173,39 @@ function PagamentoPage() {
       const credit = methods.results.find((m) => m.payment_type_id === "credit_card") ?? methods.results[0];
       if (!credit) throw new Error("Bandeira do cartão não aceita.");
 
-      // Tokenize
+      // Validate CVV length against what MP expects for this brand
+      const expectedCvvLen = credit.settings?.[0]?.security_code?.length;
+      if (expectedCvvLen && cvv.length !== expectedCvvLen) {
+        throw new Error(
+          `O código de segurança deste cartão deve ter ${expectedCvvLen} dígitos.`,
+        );
+      }
+
+      // Non-sensitive diagnostics
+      console.info("[MP] tokenization payload", {
+        card_digits_len: cardDigits.length,
+        cvv_digits_len: cvv.length,
+        expected_cvv_len: expectedCvvLen ?? null,
+        payment_method_id: credit.id,
+        payment_type_id: credit.payment_type_id,
+        issuer_id: credit.issuer?.id ?? null,
+        exp_month: mm,
+        exp_year: yearFull,
+      });
+
+      // Tokenize via official MP SDK v2
       const tokenResp = await mpRef.current.createCardToken({
         cardNumber: cardDigits,
-        cardholderName: cardName,
+        cardholderName: cardName.trim(),
         cardExpirationMonth: mm,
         cardExpirationYear: yearFull,
         securityCode: cvv,
         identificationType: "CPF",
         identificationNumber: cpfDigits,
       });
+
+      if (!tokenResp?.id) throw new Error("Falha ao gerar token do cartão.");
+      console.info("[MP] token generated", { last_four: tokenResp.last_four_digits ?? null });
 
       const result = await submit({
         data: {
