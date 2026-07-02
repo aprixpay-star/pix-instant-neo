@@ -68,6 +68,15 @@ declare global {
     MercadoPago?: new (publicKey: string, options?: { locale?: string }) => MPInstance;
   }
 }
+interface MPPaymentMethod {
+  id: string;
+  payment_type_id: string;
+  issuer?: { id?: number | string };
+  settings?: Array<{
+    security_code?: { length?: number; card_location?: string; mode?: string };
+    bin?: { pattern?: string; installments_pattern?: string; exclusion_pattern?: string };
+  }>;
+}
 interface MPInstance {
   createCardToken(params: {
     cardNumber: string;
@@ -77,10 +86,8 @@ interface MPInstance {
     securityCode: string;
     identificationType: string;
     identificationNumber: string;
-  }): Promise<{ id: string; first_six_digits?: string }>;
-  getPaymentMethods(params: { bin: string }): Promise<{
-    results: Array<{ id: string; payment_type_id: string }>;
-  }>;
+  }): Promise<{ id: string; first_six_digits?: string; last_four_digits?: string }>;
+  getPaymentMethods(params: { bin: string }): Promise<{ results: MPPaymentMethod[] }>;
 }
 
 function PagamentoPage() {
