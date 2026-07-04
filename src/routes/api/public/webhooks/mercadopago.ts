@@ -50,11 +50,18 @@ export const Route = createFileRoute("/api/public/webhooks/mercadopago")({
           status_detail?: string;
         };
 
-        const dbStatus = payment.status === "approved" ? "APROVADO" : payment.status.toUpperCase();
+        const dbStatus =
+          payment.status === "approved"
+            ? "APROVADO"
+            : payment.status === "pending" || payment.status === "in_process"
+              ? "PENDENTE"
+              : payment.status === "rejected"
+                ? "RECUSADO"
+                : "AGUARDANDO_ANALISE";
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { error } = await supabaseAdmin
-          .from("operacoes_vendas")
+          .from("operacoes")
           .update({
             status: dbStatus,
             status_detail: payment.status_detail ?? null,
