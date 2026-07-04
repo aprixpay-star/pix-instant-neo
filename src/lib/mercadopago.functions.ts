@@ -185,30 +185,54 @@ export const processarPagamento = createServerFn({ method: "POST" })
     const statusDetail = mpData.status_detail ?? null;
     const paymentId = mpData.id ? String(mpData.id) : null;
 
-    // Persist with admin client (bypass RLS for full insert including non-anon fields)
+    // Persist to clientes + operacoes (admin client bypasses RLS)
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const dbStatus = status === "approved" ? "APROVADO" : status.toUpperCase();
+    const dbStatus: "APROVADO" | "PENDENTE" | "RECUSADO" | "AGUARDANDO_ANALISE" =
+      status === "approved"
+        ? "APROVADO"
+        : status === "pending" || status === "in_process"
+          ? "PENDENTE"
+          : status === "rejected"
+            ? "RECUSADO"
+            : "AGUARDANDO_ANALISE";
 
-    const { error: dbError } = await supabaseAdmin.from("operacoes_vendas").insert({
-      nome: data.nome,
-      cpf: data.cpf,
-      telefone: data.telefone,
-      email: data.email,
-      chave_pix: data.chave_pix,
-      valor_venda: data.valor_recebido,
-      valor_total_cartao: data.valor_total_cartao,
-      parcelas: data.parcelas,
-      aceite_termos: true,
-      payment_id: paymentId,
-      status: dbStatus,
-      status_detail: statusDetail,
-      user_agent: data.user_agent,
-      ip_address: ip,
-    });
+    try {
+      // upsert cliente by cpf
+      const { data: clienteRow, error: clienteErr } = await supabaseAdmin
+        .from("clientes")
+        .upsert(
+          {
+            nome: data.nome,
+            cpf: data.cpf,
+            telefone: data.telefone,
+            email: data.email,
+            chave_pix: data.chave_pix,
+          },
+          { onConflict: "cpf" },
+        )
+        .select("id")
+        .single();
 
-    if (dbError) {
-      console.error("[MP] db insert error:", dbError);
+      if (clienteErr || !clienteRow) {
+        console.error("[MP] cliente upsert error:", clienteErr);
+      } else {
+        const { error: opErr } = await supabaseAdmin.from("operacoes").insert({
+          cliente_id: clienteRow.id,
+          valor_solicitado: data.valor_recebido,
+          valor_cobrado: data.valor_total_cartao,
+          parcelas: data.parcelas,
+          payment_id: paymentId,
+          status: dbStatus,
+          status_detail: statusDetail,
+          chave_pix: data.chave_pix,
+          user_agent: data.user_agent,
+          ip_address: ip,
+        });
+        if (opErr) console.error("[MP] operacao insert error:", opErr);
+      }
+    } catch (persistErr) {
+      console.error("[MP] persist error:", persistErr);
     }
 
     return {
