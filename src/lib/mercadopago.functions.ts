@@ -101,6 +101,24 @@ export const processarPagamento = createServerFn({ method: "POST" })
       paymentBody.issuer_id = Number.isFinite(numericIssuerId) ? numericIssuerId : data.issuer_id;
     }
 
+    // ===== Audit log: payment creation payload (no sensitive data) =====
+    console.info("[MP] creating payment", {
+      token_present: Boolean(data.token),
+      token_len: data.token?.length ?? 0,
+      token_preview: data.token ? `${data.token.slice(0, 4)}…${data.token.slice(-4)}` : null,
+      payment_method_id: data.payment_method_id,
+      issuer_id: paymentBody.issuer_id ?? null,
+      installments: data.installments,
+      transaction_amount: amount,
+      description: paymentBody.description,
+      payer_email: data.email,
+      payer_identification_type: "CPF",
+      payer_identification_number_masked: `${data.cpf.slice(0, 3)}.***.***-${data.cpf.slice(-2)}`,
+      access_token_mode: accessTokenMode,
+      public_key_mode: data.public_key_mode ?? "unknown",
+      idempotency_key: idempotencyKey,
+    });
+
     const mpResp = await fetch("https://api.mercadopago.com/v1/payments", {
       method: "POST",
       headers: {
@@ -111,22 +129,47 @@ export const processarPagamento = createServerFn({ method: "POST" })
       body: JSON.stringify(paymentBody),
     });
 
-    const mpData = (await mpResp.json()) as {
+    const rawText = await mpResp.text();
+    let mpData: {
       id?: number;
       status?: string;
       status_detail?: string;
       message?: string;
       error?: string;
-      cause?: Array<{ description?: string }>;
-    };
+      cause?: Array<{ code?: string | number; description?: string }>;
+    } = {};
+    try {
+      mpData = rawText ? JSON.parse(rawText) : {};
+    } catch {
+      console.error("[MP] non-JSON response body", { http_status: mpResp.status, raw: rawText.slice(0, 500) });
+    }
+
+    // ===== Audit log: full MP response (safe fields only) =====
+    console.info("[MP] payment response", {
+      http_status: mpResp.status,
+      http_ok: mpResp.ok,
+      body: {
+        id: mpData.id ?? null,
+        status: mpData.status ?? null,
+        status_detail: mpData.status_detail ?? null,
+        message: mpData.message ?? null,
+        error: mpData.error ?? null,
+        cause: mpData.cause ?? null,
+      },
+    });
 
     if (!mpResp.ok) {
+      const causeDescriptions = (mpData?.cause ?? [])
+        .map((c) => [c.code, c.description].filter(Boolean).join(": "))
+        .filter(Boolean)
+        .join(" | ");
       const reason =
-        mpData?.cause?.[0]?.description ||
+        causeDescriptions ||
         mpData?.message ||
         mpData?.error ||
-        "Falha ao processar pagamento.";
-      console.error("[MP] payment error:", mpResp.status, {
+        `HTTP ${mpResp.status}`;
+      console.error("[MP] payment error", {
+        http_status: mpResp.status,
         message: mpData?.message,
         error: mpData?.error,
         cause: mpData?.cause,
@@ -134,6 +177,7 @@ export const processarPagamento = createServerFn({ method: "POST" })
           installments: data.installments,
           payment_method_id: data.payment_method_id,
           issuer_id: data.issuer_id ?? null,
+          transaction_amount: amount,
           access_token_mode: accessTokenMode,
           public_key_mode: data.public_key_mode ?? "unknown",
         },
