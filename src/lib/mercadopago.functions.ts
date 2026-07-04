@@ -41,14 +41,10 @@ function credentialMode(value: string): "test" | "live" | "unknown" {
 }
 
 function readableMercadoPagoError(message: string) {
-  if (message === "internal_error" || message.includes("internal_error")) {
-    return "O Mercado Pago retornou uma falha interna. Confira se a Public Key e o Access Token são da mesma conta e do mesmo ambiente de teste/live.";
+  // Preserve the exact API message; only remap fully opaque cases.
+  if (message === "internal_error") {
+    return "internal_error — verifique se a Public Key e o Access Token são da mesma conta e do mesmo ambiente (teste/live).";
   }
-
-  if (message.includes("security_code_length")) {
-    return "CVV inválido para a bandeira do cartão informado.";
-  }
-
   return message;
 }
 
