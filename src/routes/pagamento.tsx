@@ -4,8 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { ChevronLeft, Lock, ShieldCheck, Loader2, CreditCard } from "lucide-react";
 import { processarPagamento } from "@/lib/mercadopago.functions";
 
-const MP_PUBLIC_KEY =
-  import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY || "TEST-4b6d4336-bd2e-4a96-bcc2-1b22a2bc73ba";
+const MP_PUBLIC_KEY = (import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY ?? "").trim();
 
 const TAXAS: Record<number, number> = {
   1: 0.12, 2: 0.19, 3: 0.25, 4: 0.28, 5: 0.30, 6: 0.32,

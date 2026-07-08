@@ -1,54 +1,57 @@
-## Objetivo
-Separar o fluxo em duas telas: **cadastro de dados pessoais** e **confirmação/autorização**. Persistir tudo no Supabase com IP, User Agent e timestamp.
+## Erro: `2006: Card Token not found`
 
-## Etapas
+Esse erro do Mercado Pago significa **quase sempre** uma coisa: o **token do cartão foi criado com uma Public Key** e o **pagamento foi enviado com um Access Token de outra conta ou de outro ambiente** (teste vs produção). O token só existe na conta que o gerou — quando o backend tenta usá-lo com credenciais diferentes, o MP responde "token não encontrado".
 
-### 1. Migração no banco (`operacoes_vendas`)
-Adicionar colunas que faltam:
-- `telefone TEXT NOT NULL`
-- `email TEXT NOT NULL`
-- `chave_pix TEXT NOT NULL`
+Hoje o projeto usa:
+- **Frontend (tokeniza o cartão):** `VITE_MERCADOPAGO_PUBLIC_KEY` no `.env` (com fallback `TEST-4b6d4336-...` fixo no código).
+- **Backend (cobra):** secret `MERCADOPAGO_ACCESS_TOKEN`.
 
-`created_at` já existe (serve como data/hora). `ip_address` e `user_agent` já existem. A policy de INSERT (`aceite_termos = true`) é mantida.
+Se esses dois não forem do **mesmo par**, dá 2006.
 
-### 2. Nova rota `/cadastro` (`src/routes/cadastro.tsx`)
-Recebe `?valor=&parcelas=` vindos do simulador. Formulário com:
-- Nome completo (mín. 3 caracteres)
-- CPF (com máscara + validação de dígitos)
-- Telefone (máscara `(99) 99999-9999`)
-- E-mail (validação de formato)
-- Chave Pix (CPF/e-mail/telefone/aleatória — texto livre validado por tamanho)
+---
 
-Validação client-side com mensagens inline. Botão **CONTINUAR** habilita só com todos válidos e navega para `/confirmar` passando os dados via `search params` (mantém padrão atual e simples, sem state global).
+## O que você precisa fazer (passo a passo)
 
-Visual idêntico ao restante: card escuro, borda sutil, foco neon `#17FF49`, header/footer reutilizados, mesma tipografia.
+### 1. Pegar o par correto de credenciais no Mercado Pago
+1. Entre em https://www.mercadopago.com.br/developers/panel/app
+2. Abra sua aplicação.
+3. Vá em **Credenciais de teste** (para testar) **ou** **Credenciais de produção** (para cobrar de verdade) — **nunca misture os dois**.
+4. Na **mesma tela**, copie:
+   - **Public Key** (começa com `TEST-` ou `APP_USR-`)
+   - **Access Token** (começa com `TEST-` ou `APP_USR-`)
 
-### 3. Refatorar `/confirmar` (`src/routes/confirmar.tsx`)
-Remover todos os inputs. A tela passa a ser **apenas revisão + autorização**:
-- Card hero com **valor solicitado** (verde neon, fonte gigante)
-- Linha com **{parcelas}x de R$ {valorParcela}**
-- Linha secundária com total no cartão (cinza, fonte menor)
-- Bloco "Dados do recebedor" em modo leitura: Nome, CPF (mascarado), Telefone, E-mail, Chave Pix
-- Checkbox obrigatório: **"Declaro que autorizo esta operação."**
-- Botão `AUTORIZAR E RECEBER NO PIX →` desabilitado até marcar
-- Selos de segurança (`ShieldCheck`, `Lock`)
+Regra: ou os dois começam com `TEST-`, ou os dois começam com `APP_USR-`. Nunca um de cada.
 
-`validateSearch` aceita: `valor`, `parcelas`, `nome`, `cpf`, `telefone`, `email`, `chavePix`. Se faltar algum dado obrigatório, redireciona automaticamente para `/cadastro`.
+### 2. Atualizar as duas credenciais no projeto
+- **`VITE_MERCADOPAGO_PUBLIC_KEY`** → atualizar no `.env` com a Public Key copiada.
+- **`MERCADOPAGO_ACCESS_TOKEN`** → atualizar via secret (abro o formulário seguro para você colar).
 
-No submit:
-- Busca IP via `https://api.ipify.org?format=json` (já existe)
-- Captura `navigator.userAgent`
-- `INSERT` em `operacoes_vendas` com todos os campos + `aceite_termos: true`
-- Tela de sucesso atual é mantida
+### 3. Remover o fallback fixo da Public Key
+Em `src/routes/pagamento.tsx` existe um fallback hardcoded:
+```ts
+const MP_PUBLIC_KEY = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY || "TEST-4b6d4336-...";
+```
+Esse fallback é perigoso: se a env var faltar em qualquer build, o frontend volta a tokenizar numa conta de teste aleatória do Lovable e o 2006 volta. Vou trocar por leitura estrita e mostrar um erro claro na tela quando a chave não estiver configurada.
 
-### 4. Ajustar simulador (`src/routes/simular.tsx`)
-O botão `CONFIRMAR PAGAMENTO` / `CONTINUAR` da etapa final passa a navegar para `/cadastro` (em vez de `/confirmar`), levando `valor` e `parcelas`.
+### 4. Validar
+- Testar um pagamento com cartão de teste do MP (ex.: `5031 4332 1540 6351`, CVV `123`, validade futura, CPF `12345678909`).
+- Se aparecer 2006 de novo, comparar no console o `public_key_mode` logado (`test`/`live`) com o prefixo do Access Token no backend — precisam bater.
 
-## Arquivos
-- `supabase/migrations/<novo>.sql` — adicionar 3 colunas
-- `src/routes/cadastro.tsx` — **novo**
-- `src/routes/confirmar.tsx` — reescrita (somente revisão)
-- `src/routes/simular.tsx` — trocar destino do CTA final
+### 5. Cuidados adicionais
+- **Token expira em ~7 minutos** e é **uso único**. Se você ficar muito tempo na tela antes de enviar, ou tentar reenviar o mesmo formulário, também dá 2006. Nesse caso é só recarregar a tela e refazer.
+- Cartão de teste **não pode** ser usado com credenciais de produção, e cartão real **não pode** ser usado com credenciais de teste — os dois casos retornam 2006.
 
-## Fluxo final
-`/` → `/simular` (valor + parcelas) → `/cadastro` (dados pessoais + Pix) → `/confirmar` (revisão + autorização) → sucesso.
+---
+
+## O que vou alterar no código (mínimo, sem mexer no layout)
+
+- `src/routes/pagamento.tsx`: remover o fallback fixo `TEST-4b6d4336-...`, ler `VITE_MERCADOPAGO_PUBLIC_KEY` de forma estrita e desabilitar o botão + mostrar mensagem se a chave estiver ausente.
+
+Nenhuma outra mudança de UI, business logic ou backend.
+
+---
+
+**Quer que eu siga por esse caminho?** Se sim, me confirme e já:
+1. Aplico a mudança no `pagamento.tsx`.
+2. Abro o formulário seguro pra você atualizar `MERCADOPAGO_ACCESS_TOKEN`.
+3. Te digo onde colar a `VITE_MERCADOPAGO_PUBLIC_KEY` nova.
