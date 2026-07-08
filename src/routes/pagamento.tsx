@@ -170,6 +170,12 @@ function PagamentoPage() {
   const [mpReady, setMpReady] = useState(false);
 
   useEffect(() => {
+    if (!MP_PUBLIC_KEY) {
+      setError(
+        "Configuração do Mercado Pago ausente: defina VITE_MERCADOPAGO_PUBLIC_KEY com a Public Key da mesma conta/ambiente do Access Token do backend.",
+      );
+      return;
+    }
     let cancelled = false;
     const tryInit = () => {
       if (cancelled) return;
