@@ -1,18 +1,27 @@
 import { defineConfig } from 'vite'
-import viteReact from '@vitejs/plugin-react'
-import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+import react from '@vitejs/plugin-react'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
-import { nitro } from 'nitro/vite'
 
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    tanstackStart(),
     TanStackRouterVite(),
-    viteReact(),
+    react(),
     tailwindcss(),
     tsconfigPaths(),
-    nitro(),
   ],
+  server: {
+    middlewareMode: true,
+  },
+  ssr: {
+    external: ['react', 'react-dom'],
+    noExternal: ['@tanstack/react-start', '@tanstack/start-storage-context'],
+  },
+  build: {
+    rollupOptions: {
+      external: ['node:async_hooks'],
+    },
+  },
 })

@@ -21,7 +21,8 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@tanstack/react-start/server": ["./node_modules/@tanstack/react-start/dist/esm/server.d.ts"]
     }
   }
 }
