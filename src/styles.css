@@ -31,32 +31,38 @@
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
   --color-neon: var(--neon);
+  --color-brand: var(--brand);
+  --color-brand-soft: var(--brand-soft);
+  --color-success: var(--success);
   --font-display: "Space Grotesk", system-ui, sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
 }
 
 :root {
-  --radius: 0.875rem;
-  --background: oklch(0.18 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.22 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.22 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.78 0.22 145);
-  --primary-foreground: oklch(0.14 0 0);
-  --neon: oklch(0.88 0.27 145);
-  --secondary: oklch(0.26 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.26 0 0);
-  --muted-foreground: oklch(0.72 0 0);
-  --accent: oklch(0.78 0.22 145);
-  --accent-foreground: oklch(0.14 0 0);
+  --radius: 1rem;
+  --background: oklch(0.985 0.005 280);
+  --foreground: oklch(0.18 0.02 280);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.02 280);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.02 280);
+  --primary: oklch(0.52 0.22 290);
+  --primary-foreground: oklch(0.99 0 0);
+  --brand: oklch(0.52 0.22 290);
+  --brand-soft: oklch(0.95 0.04 290);
+  --neon: oklch(0.52 0.22 290);
+  --success: oklch(0.7 0.18 155);
+  --secondary: oklch(0.96 0.01 280);
+  --secondary-foreground: oklch(0.22 0.02 280);
+  --muted: oklch(0.96 0.01 280);
+  --muted-foreground: oklch(0.5 0.02 280);
+  --accent: oklch(0.95 0.04 290);
+  --accent-foreground: oklch(0.35 0.15 290);
   --destructive: oklch(0.65 0.24 27);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.78 0.22 145);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.9 0.01 280);
+  --input: oklch(0.92 0.01 280);
+  --ring: oklch(0.52 0.22 290);
 }
 
 @layer base {
@@ -80,26 +86,45 @@
 
 @layer utilities {
   .text-balance { text-wrap: balance; }
-  .bg-grid {
+  .bg-grid-soft {
     background-image:
-      linear-gradient(to right, oklch(1 0 0 / 0.04) 1px, transparent 1px),
-      linear-gradient(to bottom, oklch(1 0 0 / 0.04) 1px, transparent 1px);
-    background-size: 48px 48px;
+      linear-gradient(to right, oklch(0.52 0.22 290 / 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(0.52 0.22 290 / 0.06) 1px, transparent 1px);
+    background-size: 44px 44px;
   }
-  .glow-neon {
-    box-shadow: 0 0 0 1px oklch(0.88 0.27 145 / 0.4), 0 10px 40px -10px oklch(0.88 0.27 145 / 0.5);
+  .glow-brand {
+    box-shadow: 0 20px 40px -20px oklch(0.52 0.22 290 / 0.5);
   }
-  .text-neon { color: var(--neon); }
-  .bg-neon { background-color: var(--neon); }
+  .shadow-soft {
+    box-shadow: 0 10px 30px -10px oklch(0.3 0.05 280 / 0.15);
+  }
+  .shadow-float {
+    box-shadow: 0 20px 50px -18px oklch(0.3 0.05 280 / 0.25);
+  }
+  .text-neon { color: var(--brand); }
+  .bg-neon { background-color: var(--brand); }
+  .bg-brand-gradient {
+    background-image: linear-gradient(135deg, oklch(0.55 0.22 290), oklch(0.6 0.2 260));
+  }
   @keyframes pulse-ring {
-    0% { box-shadow: 0 0 0 0 oklch(0.88 0.27 145 / 0.6); }
-    70% { box-shadow: 0 0 0 16px oklch(0.88 0.27 145 / 0); }
-    100% { box-shadow: 0 0 0 0 oklch(0.88 0.27 145 / 0); }
+    0% { box-shadow: 0 0 0 0 oklch(0.52 0.22 290 / 0.5); }
+    70% { box-shadow: 0 0 0 16px oklch(0.52 0.22 290 / 0); }
+    100% { box-shadow: 0 0 0 0 oklch(0.52 0.22 290 / 0); }
   }
   .animate-pulse-ring { animation: pulse-ring 2s infinite; }
   @keyframes marquee {
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
   }
-  .animate-marquee { animation: marquee 25s linear infinite; }
+  .animate-marquee { animation: marquee 30s linear infinite; }
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .animate-float { animation: float-slow 5s ease-in-out infinite; }
+  @keyframes float-slower {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .animate-float-slower { animation: float-slower 6.5s ease-in-out infinite; }
 }
